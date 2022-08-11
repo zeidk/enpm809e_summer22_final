@@ -8,4 +8,4 @@ Assuming you have the catkin workspace `catkin_ws` located in your home director
 - `cd ~/catkin_ws`
 - `catkin build`
 - `source ~/catkin_ws/devel/setup.bash`
-- `roslaunch roslaunch workcell_809e workcell.launch`
+- `roslaunch workcell_809e workcell.launch`
