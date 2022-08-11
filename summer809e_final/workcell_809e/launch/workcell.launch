@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="limited" default="false" />
+    <arg name="gui" default="true" />
+    <arg name="debug" default="false" />
+    <arg name="verbose" default="false" />
+    <arg name="gazebo_ros_output" default="screen" />
+    <arg name="world_path" default="$(find workcell_809e)/worlds/summer2022.world" />
+    <arg name="bot_x" default="0" />
+    <arg name="bot_y" default="0" />
+    <arg name="bot_yaw" default="1.5" />
+    <arg name="robot_name" default="waffle" />
+
+
+    <!-- load content of kitting.yaml on the Parameter Server -->
+    <rosparam file="$(find workcell_809e)/param/parts.yaml" command="load" />
+
+    <!-- startup simulated world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_path)" />
+        <arg name="paused" value="false" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="verbose" value="$(arg verbose)" />
+        <arg name="output" value="$(arg gazebo_ros_output)" />
+    </include>
+
+    <!-- <include file="$(find workcell_809e)/launch/turtlebot.launch">
+    </include> -->
+
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="connect_world_to_map" args="0 0 0 0 0 0 1 world map" /> -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="connect_world_to_odom" args="0 0 0 0 0 0 1 world odom" /> -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="connect_bin1_to_world" args="0 0 0 0 0 0 1 world bin1" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="connect_bin2_to_world" args="-1 0 0 0 0 0 1 world bin2" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="connect_bin3_to_world" args="-2 0 0 0 0 0 1 world bin3" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="connect_bin4_to_world" args="-3 0 0 0 0 0 1 world bin4" /> -->
+
+
+    <include file="$(find workcell_809e)/launch/turtlebot.launch">
+        <arg name="bot_x" value="$(arg bot_x)" />
+        <arg name="bot_y" value="$(arg bot_y)" />
+        <arg name="bot_yaw" value="$(arg bot_yaw)" />
+        <arg name="robot_name" value="$(arg robot_name)" />
+    </include>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="connect_world_to_odom" args="0 0 0 0 0 0 1 world odom" />
+
+    <node pkg="bot_controller" type="pick_and_place_publisher" name="part_info_publisher" output="screen"/>
+
+    <!-- launch rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find workcell_809e)/rviz/environment.rviz" />
+
+</launch>

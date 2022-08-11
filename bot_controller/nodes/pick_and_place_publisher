@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+
+from enpm809e_msgs.msg import PartInfo, PartInfos
+import rospy
+
+def publish_part_info():
+    rospy.init_node("part_info_publisher")
+    rate = rospy.Rate(1)
+    part_info_list = []
+    part_infos = PartInfos()
+    
+    part_info_publisher = rospy.Publisher(
+            'part_infos', PartInfos, queue_size=10, latch=True)
+    
+    if rospy.has_param("/part_pickup/part_1/part_type"):
+        part_info = PartInfo()
+        part_info.part_type = rospy.get_param("/part_pickup/part_1/part_type")
+        if rospy.has_param("/part_pickup/part_1/drop_location"):
+            drop_location = rospy.get_param("/part_pickup/part_1/drop_location")
+            part_info.drop_location.x = rospy.get_param("/drop_locations/{}/x".format(drop_location))
+            part_info.drop_location.y = rospy.get_param("/drop_locations/{}/y".format(drop_location))
+            part_info_list.append(part_info)
+    if rospy.has_param("/part_pickup/part_2/part_type"):
+        part_info = PartInfo()
+        part_info.part_type = rospy.get_param("/part_pickup/part_2/part_type")
+        if rospy.has_param("/part_pickup/part_2/drop_location"):
+            drop_location = rospy.get_param("/part_pickup/part_2/drop_location")
+            part_info.drop_location.x = rospy.get_param("/drop_locations/{}/x".format(drop_location))
+            part_info.drop_location.y = rospy.get_param("/drop_locations/{}/y".format(drop_location))
+            part_info_list.append(part_info)
+    if rospy.has_param("/part_pickup/part_3/part_type"):
+        part_info = PartInfo()
+        part_info.part_type = rospy.get_param("/part_pickup/part_3/part_type")
+        if rospy.has_param("/part_pickup/part_3/drop_location"):
+            drop_location = rospy.get_param("/part_pickup/part_3/drop_location")
+            part_info.drop_location.x = rospy.get_param("/drop_locations/{}/x".format(drop_location))
+            part_info.drop_location.y = rospy.get_param("/drop_locations/{}/y".format(drop_location))
+            part_info_list.append(part_info)
+    if rospy.has_param("/part_pickup/part_4/part_type"):
+        part_info = PartInfo()
+        part_info.part_type = rospy.get_param("/part_pickup/part_4/part_type")
+        if rospy.has_param("/part_pickup/part_4/drop_location"):
+            drop_location = rospy.get_param("/part_pickup/part_4/drop_location")
+            part_info.drop_location.x = rospy.get_param("/drop_locations/{}/x".format(drop_location))
+            part_info.drop_location.y = rospy.get_param("/drop_locations/{}/y".format(drop_location))
+            part_info_list.append(part_info)
+            
+    # rospy.loginfo(part_info_list)
+    
+    part_infos.part_infos = part_info_list
+    while not rospy.is_shutdown():
+        part_info_publisher.publish(part_infos)
+        rate.sleep()
+    
+    
+    
+
+if __name__ == '__main__':
+    publish_part_info()

@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+
+import rospy
+from bot_controller.bot_controller_class import BotController
+
+if __name__ == '__main__':
+    try:
+        controller = BotController()
+        
+        
+    except rospy.ROSInterruptException:
+        rospy.loginfo("Action terminated.")
