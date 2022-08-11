@@ -1,6 +1,6 @@
-# enpm809e_summer22_final
+# Packages for the final project Summer 2022 (ENPM809E)
 
-# Clone this repository in your catkin workspace
+# Steps to clone and run packages
 
 Assuming you have the catkin workspace `catkin_ws` located in your home directory:
 - `cd ~/catkin_ws/src`
