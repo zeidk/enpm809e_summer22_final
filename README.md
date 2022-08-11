@@ -13,3 +13,8 @@ Assuming you have the catkin workspace `catkin_ws` located in your home director
   - Example: `export GAZEBO_MODEL_PATH=/home/zeid/enpm809e_lecture9_ws/src/summer809e_final/workcell_809e/models:$GAZEBO_MODEL_PATH`
 - `source ~/.bashrc`
 - `roslaunch workcell_809e workcell.launch`
+
+# Use the correct shebang line
+
+If you are using Python2 and Melodic:
+- Change the shebang line `#!/usr/bin/env python3` to `#!/usr/bin/env python` in the files located in `bot_controller/nodes`.
