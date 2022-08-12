@@ -69,7 +69,7 @@ class BotController(object):
         # rospy.sleep(5.0)
         # self.detach_part("assembly_pump_blue")
 
-        # self.handle_inputs()
+        self.handle_inputs()
         rospy.spin()
 
     @staticmethod
