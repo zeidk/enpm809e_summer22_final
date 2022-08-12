@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+
 import rospy
 from bot_controller.bot_controller_class import BotController
 
 if __name__ == '__main__':
     try:
         controller = BotController()
-        
-        
+        # controller.go_straight_tf(5, True)
+        # rospy.spin()
     except rospy.ROSInterruptException:
         rospy.loginfo("Action terminated.")

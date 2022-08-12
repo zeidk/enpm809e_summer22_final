@@ -141,7 +141,7 @@
     </model>
  
 
-  <model name="lc_pickup_location_1">
+  <model name="camera_1">
       <static>true</static>
       <pose>4 4 1.6 1.104452 1.57 1.57</pose>
       <plugin name="ros_logical_camera" filename="libROSLogicalCameraPlugin.so">
@@ -213,7 +213,7 @@
       </link>
     </model>
 
-  <model name="lc_pickup_location_2">
+  <model name="camera_3">
       <static>true</static>
     <pose>-4 -4 1.6 1.104452 1.57 1.57</pose>
       <plugin name="ros_logical_camera" filename="libROSLogicalCameraPlugin.so">
@@ -285,7 +285,7 @@
       </link>
     </model>
 
-    <model name="lc_pickup_location_3">
+    <model name="camera_2">
       <static>true</static>
       <pose>-4 4 1.6 1.104452 1.57 1.57</pose>
       <plugin name="ros_logical_camera" filename="libROSLogicalCameraPlugin.so">
@@ -357,7 +357,7 @@
       </link>
     </model>
 
-    <model name="lc_pickup_location_4">
+    <model name="camera_4">
       <static>true</static>
       <pose>4 -4 1.6 1.104452 1.57 1.57</pose>
       <plugin name="ros_logical_camera" filename="libROSLogicalCameraPlugin.so">

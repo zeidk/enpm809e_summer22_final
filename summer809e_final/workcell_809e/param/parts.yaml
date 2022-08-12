@@ -1,24 +1,27 @@
 part_pickup:
   part_1: 
     part_type: "assembly_pump_yellow"
-    drop_location: "drop_location_1"
+    drop_location: "drop_location_3"
   # part_2: 
   #   part_type: "assembly_pump_red"
   #   drop_location: "drop_location_2"
   # part_3: 
   #   part_type: "assembly_pump_blue"
   #   drop_location: "drop_location_3"
+  part_2: 
+    part_type: "assembly_pump_green"
+    drop_location: "drop_location_4"
 
 drop_locations:
   drop_location_1:
     x: 7
     y: 0
   drop_location_2:
-    x: -7
-    y: 0
-  drop_location_3:
-    x: 0
-    y: 7
-  drop_location_4:
     x: 0
     y: -7
+  drop_location_3:
+    x: -7
+    y: 0
+  drop_location_4:
+    x: 0
+    y: 7

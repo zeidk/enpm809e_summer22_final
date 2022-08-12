@@ -17,7 +17,6 @@ from geometry_msgs.msg import Quaternion, Pose, TransformStamped, Twist, Point
 from bot_controller.part_class import Part
 
 
-
 class BotController(object):
     """
     A controller class to drive a turtlebot in Gazebo.
@@ -29,33 +28,26 @@ class BotController(object):
         self._is_part_info_gathered = False
         self._part_list = []
         self._camera_parts = []
-        self._current_part_info = PartInfo()
-        #  the next 3 lines should be assigned in the callback function for
-        #  the Topic /part_infos
-        self._current_part_info.part_type = "assembly_pump_yellow"
-        self._current_part_info.drop_location.x = -7.0
-        self._current_part_info.drop_location.y = 0.0
-        
+
         #  used to check whether a camera data has been processed
         self._queried_camera_1 = False
         self._rate = rospy.Rate(rate)
         self._robot_name = 'waffle'
         self._velocity_msg = Twist()
         #  gains for the proportional controller
-        self._kp_linear = 0.1
-        self._kp_angular = 0.5
-        
+        self._kp_linear = 0.2
+        self._kp_angular = 0.2
+
         #  default velocities for going in a straight line
         self._velocity_msg.linear.x = 0.1
         self._velocity_msg.angular.z = 0.1
-        
+
         # current pose of the robot
         self._current_x_pos = None
         self._current_y_pos = None
         self._current_orientation = None
         self._initial_orientation = None
-        
-        
+
         #  used to check whether the goal has been reached
         self._goal_reached = False
 
@@ -64,11 +56,20 @@ class BotController(object):
             'cmd_vel', Twist, queue_size=10)
         # Subscribers
         rospy.Subscriber("/odom", Odometry, self.odom_callback)
-        rospy.Subscriber("/logical_camera/lc_pickup_location_1",
-                         LogicalCameraImage, self.lc_pickup_location_1_callback)
-        
-        self.handle_inputs()
 
+        # rospy.Subscriber("/logical_camera/camera_1",
+        #                  LogicalCameraImage, self.camera_1_callback)
+        # camera1_msg = rospy.wait_for_message('/logical_camera/camera_1', LogicalCameraImage)
+        # rospy.loginfo(camera1_msg)
+
+        # part_infos_msg = rospy.wait_for_message('/part_infos', PartInfos)
+        # rospy.loginfo(part_infos_msg)
+
+        # self.attach_part("assembly_pump_blue")
+        # rospy.sleep(5.0)
+        # self.detach_part("assembly_pump_blue")
+
+        # self.handle_inputs()
         rospy.spin()
 
     @staticmethod
@@ -114,12 +115,11 @@ class BotController(object):
             raise RuntimeError('Failed to get ' + model_name + ' model state')
         return model_pose
 
-
-    def attach_part(self):
+    def attach_part(self, part_type):
         """
         Attach a Gazebo model to the turtlebot
         """
-        part_name = self._current_part_info.part_type+"_1"
+        part_name = part_type+"_1"
         rospy.loginfo(part_name)
 
         pause_physics_client = rospy.ServiceProxy(
@@ -133,7 +133,7 @@ class BotController(object):
         delete_model_client = rospy.ServiceProxy(
             'gazebo/delete_model', DeleteModel)
         # Remove from Gazebo
-        delete_model_client(self._current_part_info.part_type+"_0")
+        delete_model_client(part_type+"_0")
 
         # Compute part pose based on current robot pose
         part_pose = BotController.get_model_pose(self._robot_name)
@@ -145,7 +145,7 @@ class BotController(object):
         part_pose.position.z += 0.3
         # part_pose.orientation = Quaternion(*quaternion_from_euler(0, 0, 0))
 
-        model_name = "model://"+self._current_part_info.part_type+"_ariac"
+        model_name = "model://"+part_type+"_ariac"
         rospy.loginfo("Model: {}".format(model_name))
         # Compute spawn model request
         spawn_request = SpawnModelRequest()
@@ -166,23 +166,23 @@ class BotController(object):
             pause_physics_client()
         except rospy.ServiceException as e:
             rospy.logerr("Pause physics service call failed: %s", e)
-            
+
         spawn_sdf_model_client(spawn_request)
-        
+
         #  Attach the part to the robot
         try:
             link_attacher_client(
-            self._robot_name, 'base_footprint', part_name, 'link')
+                self._robot_name, 'base_footprint', part_name, 'link')
         except rospy.ServiceException as e:
             rospy.logerr("Link attacher service call failed: %s", e)
-        
+
         #  Unpause Gazebo
         try:
             unpause_physics_client()
         except rospy.ServiceException as e:
             rospy.logerr("Unpause physics service call failed: %s", e)
 
-    def detach_part(self):
+    def detach_part(self, part_type):
         """
         Detach a model from the turtlebot
         """
@@ -190,7 +190,7 @@ class BotController(object):
                                            Attach)
         detach_client.wait_for_service()
 
-        part_name = self._current_part_info.part_type+"_1"
+        part_name = part_type+"_1"
 
         # Build the detach request
         rospy.loginfo("Detaching part from robot")
@@ -202,14 +202,14 @@ class BotController(object):
 
         detach_client.call(req)
 
-    def lc_pickup_location_1_callback(self, msg: LogicalCameraImage):
+    def camera_1_callback(self, msg: LogicalCameraImage):
         """
-        Callback for Topic /logical_camera/lc_pickup_location_1
+        Callback for Topic /logical_camera/camera_1
         """
         if not self._queried_camera_1:
             for part in msg.models:
                 camera_part = Part(
-                    part.type, "lc_pickup_location_1_"+part.type+"_0_frame", part.pose)
+                    part.type, "camera_1_"+part.type+"_0_frame", part.pose)
                 self._camera_parts.append(camera_part)
             self._queried_camera_1 = True
 
@@ -273,7 +273,7 @@ class BotController(object):
                          "new frame",
                          "/world")
 
-    def go_straight_tf(self, distance_to_drive, forward=True):
+    def go_straight(self, distance_to_drive, forward=True):
         """
         Move a robot in a straight line.
         This version uses a TF listener.
@@ -282,10 +282,10 @@ class BotController(object):
             forward (bool, optional): Direction. Defaults to True.
         """
         # self.get_transform('base_footprint', 'odom')
-        
+
         while self._current_x_pos is None:
             rospy.sleep(1)
-            
+
         robot_initial_x_pos = self._current_x_pos
         robot_initial_y_pos = self._current_y_pos
 
@@ -316,42 +316,10 @@ class BotController(object):
                 self.run(0, 0)
                 break
             self._rate.sleep()
-        
+
         return True
 
-    def go_straight_time(self, distance_to_drive, forward=True):
-        """
-        Move the robot in a straight line.
-        This version uses the formula:
-        distance = velocity * (t0 - tcurrent)
-        Args:
-            distance_to_drive (float): distance to drive in meter.
-            forward (bool, optional): Direction. Defaults to True.
-        """
-        # original time
-        rospy.sleep(2)
-        t_0 = rospy.Time.now().to_sec()
-
-        linear_velocity = 0.0
-        if forward:
-            linear_velocity = 0.3
-        else:
-            linear_velocity = -0.3
-
-        # keep moving the robot until the distance is reached
-        while not rospy.is_shutdown():
-            # current time
-            t_1 = rospy.Time.now().to_sec()
-            driven_distance = (t_1 - t_0) * abs(self._velocity_msg.linear.x)
-            rospy.loginfo("Distance driven: {}".format(driven_distance))
-            if driven_distance <= distance_to_drive:
-                self.run(linear_velocity, 0)
-            else:
-                self.run(0, 0)
-                break
-            self._rate.sleep()
-
-    def go_to_goal(self, goal_x, goal_y, action=None):
+    def go_to_goal(self, goal_x, goal_y):
         """
         Make the robot reach a 2D goal using a proportional controller
         Args:
@@ -405,11 +373,8 @@ class BotController(object):
                 self._rate.sleep()
             else:
                 rospy.loginfo("Goal reached")
-                if action == "pickup":
-                    self.attach_part()
-                elif action == "place":
-                    self.detach_part()
                 self._goal_reached = True
+                self.run(0, 0)
                 return True
                 # break
 
@@ -443,12 +408,13 @@ class BotController(object):
         if action_name == "drive":
             distance = rospy.get_param("~distance")
             if distance > 0:
-                if self.go_straight_tf(distance, True):
+                rospy.logwarn("distance")
+                if self.go_straight(distance, True):
                     rospy.logwarn("Action completed")
                     rospy.on_shutdown(self.myhook)
                     sys.exit(1)
             elif distance < 0:
-                if self.go_straight_tf(distance, False):
+                if self.go_straight(distance, False):
                     rospy.logwarn("Action completed")
                     rospy.on_shutdown(self.myhook)
                     sys.exit(1)
